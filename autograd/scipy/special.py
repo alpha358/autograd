@@ -125,3 +125,81 @@ def fwd_grad_logsumexp(g, ans, x, axis=None, b=1.0, keepdims=False):
     return np.sum(g * b * np.exp(x - ans), axis=axis, keepdims=keepdims)
 
 defjvp(logsumexp, fwd_grad_logsumexp)
+
+
+## ========================== Assoc Legendre function ==========================
+#### LEGENDRE FUNCTION IMPLEMENTAION
+
+# declaring a black box
+legendre = primitive(scipy.special.lpmv)
+
+def vjp_legendre(ans, m, n, x):
+    '''
+    TODO: implement abs(x==1) cases
+    '''
+    def vjp( g ):
+        return g * ( (n+1-m)*legendre(m,n+1,x) - (n+1)*x*ans ) / (x*x - 1)
+
+    return vjp
+# Passing None to arguments that cannot be differentiated
+defvjp(legendre, None, None, vjp_legendre)
+
+
+### ================================== Spherical Harmonics ==================================
+@primitive
+def sph_harm(m, n, ph, th):
+    '''
+    Spherical harmonic from scipy with corrected th, ph naming.
+    '''
+    return scipy.special.sph_harm(m, n, ph, th)
+
+
+def vjp_sph_harm_d_th(ans, m, n, ph, th):
+    def vjp(g):
+        a = m * 1/np.tan(th)*ans
+
+        if abs(m+1) <= n:
+            b = exp(-1j*ph) * sqrt((n+1)*n - (m+1)*m) * sph_harm(m+1, n, ph, th)
+        else:
+            b = 0
+
+        if np.any(autograd.numpy.isnan(a+b)):
+            pdb.set_trace()
+        return g * (a + b)
+    return vjp
+
+
+def vjp_sph_harm_d_ph(ans, m, n, ph, th):
+    def vjp(g):
+        return g * (1j * m * ans)
+    return vjp
+
+
+# Passing None to arguments that cannot be differentiated
+defvjp(sph_harm, None, None, vjp_sph_harm_d_ph, vjp_sph_harm_d_th)
+
+
+### ======================= Spherical Bessels ==============================
+## ==== Bessel jn
+
+spherical_jn = primitive(scipy.special.spherical_jn)
+
+def vjp_spherical_jn_dz(ans, n, z):
+    def vjp(g):
+        return spherical_jn(n, z, derivative=True)
+    return vjp
+
+# Passing None to arguments that cannot be differentiated
+defvjp(spherical_jn, None, vjp_spherical_jn_dz)
+
+
+## == Bessel yn
+spherical_yn = primitive(scipy.special.spherical_yn)
+
+def vjp_spherical_yn_dz(ans, n, z):
+    def vjp(g):
+        return spherical_yn(n, z, derivative=True)
+    return vjp
+
+# Passing None to arguments that cannot be differentiated
+defvjp(spherical_yn, None, vjp_spherical_yn_dz)

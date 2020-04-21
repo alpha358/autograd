@@ -1,3 +1,11 @@
+# @Author: Alfonsas Jursenas
+# @Date:   2020-04-19T13:33:52+03:00
+# @Email:  alfonsas.jursenas@gmail.com
+# @Last modified by:   Alfonsas Jursenas
+# @Last modified time: 2020-04-19T15:54:27+03:00
+
+
+
 """Convenience functions built on top of `make_vjp`."""
 from __future__ import absolute_import
 from functools import partial
@@ -41,6 +49,18 @@ def elementwise_grad(fun, x):
     return vjp(vspace(ans).ones())
 
 @unary_to_nary
+def elementwise_grad_c(fun, x):
+    """
+    Returns a function that computes the sum of each column of the Jacobian of
+    `fun`, in one pass. If the Jacobian is diagonal, then this is the diagonal
+    of the Jacobian.
+    """
+    vjp, ans = _make_vjp(fun, x)
+    # if vspace(ans).iscomplex:
+    #     raise TypeError("Elementwise_grad only applies to real-output functions.")
+    return vjp(vspace(ans).ones())
+
+@unary_to_nary
 def deriv(fun, x):
     return _make_jvp(fun, x)(vspace(x).ones())[1]
 
@@ -65,6 +85,10 @@ def holomorphic_grad(fun, x):
     if not vspace(x).iscomplex:
         warnings.warn("Input to holomorphic_grad is not complex")
     return grad(lambda x: np.real(fun(x)))(x)
+
+@unary_to_nary
+def elementwise_holomorphic_grad(fun, x):
+    return elementwise_grad(lambda x: np.real(fun(x)))(x)
 
 def grad_named(fun, argname):
     '''Takes gradients with respect to a named argument.
