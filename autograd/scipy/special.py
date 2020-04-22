@@ -145,7 +145,7 @@ def vjp_legendre(ans, m, n, x):
 defvjp(legendre, None, None, vjp_legendre)
 
 
-### ================================== Spherical Harmonics ==================================
+### =========================== Spherical Harmonics ============================
 @primitive
 def sph_harm(m, n, ph, th):
     '''
@@ -179,26 +179,26 @@ def vjp_sph_harm_d_ph(ans, m, n, ph, th):
 defvjp(sph_harm, None, None, vjp_sph_harm_d_ph, vjp_sph_harm_d_th)
 
 
-### ======================= Spherical Bessels ==============================
-## ==== Bessel jn
+### ============================ Spherical Bessels =============================
+## --------------------------------- Bessel jn ---------------------------------
 
 spherical_jn = primitive(scipy.special.spherical_jn)
 
 def vjp_spherical_jn_dz(ans, n, z):
     def vjp(g):
-        return spherical_jn(n, z, derivative=True)
+        return g*spherical_jn(n, z, derivative=True)
     return vjp
 
 # Passing None to arguments that cannot be differentiated
 defvjp(spherical_jn, None, vjp_spherical_jn_dz)
 
 
-## == Bessel yn
+## --------------------------------- Bessel yn ---------------------------------
 spherical_yn = primitive(scipy.special.spherical_yn)
 
 def vjp_spherical_yn_dz(ans, n, z):
     def vjp(g):
-        return spherical_yn(n, z, derivative=True)
+        return g*spherical_yn(n, z, derivative=True)
     return vjp
 
 # Passing None to arguments that cannot be differentiated
