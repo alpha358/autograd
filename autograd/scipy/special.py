@@ -163,8 +163,6 @@ def vjp_sph_harm_d_th(ans, m, n, ph, th):
         else:
             b = 0
 
-        if np.any(autograd.numpy.isnan(a+b)):
-            pdb.set_trace()
         return g * (a + b)
     return vjp
 
