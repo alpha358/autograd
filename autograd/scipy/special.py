@@ -159,7 +159,7 @@ def vjp_sph_harm_d_th(ans, m, n, ph, th):
         a = m * 1/np.tan(th)*ans
 
         if abs(m+1) <= n:
-            b = exp(-1j*ph) * sqrt((n+1)*n - (m+1)*m) * sph_harm(m+1, n, ph, th)
+            b = np.exp(-1j*ph) * np.sqrt((n+1)*n - (m+1)*m) * sph_harm(m+1, n, ph, th)
         else:
             b = 0
 
