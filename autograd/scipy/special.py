@@ -150,6 +150,8 @@ defvjp(legendre, None, None, vjp_legendre)
 def sph_harm(m, n, ph, th):
     '''
     Spherical harmonic from scipy with corrected th, ph naming.
+    
+    TODO: make dY_dth stabile at th = 0
     '''
     return scipy.special.sph_harm(m, n, ph, th)
 
@@ -169,7 +171,7 @@ def vjp_sph_harm_d_th(ans, m, n, ph, th):
 
 def vjp_sph_harm_d_ph(ans, m, n, ph, th):
     def vjp(g):
-        return g * (1j * m * ans)
+        return g * (1.0j * m * ans)
     return vjp
 
 
